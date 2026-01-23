@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive  # 初始化并更新子模块
+          submodules: recursive
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -22,8 +22,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       
+      - name: Prepare Windows build
+        shell: bash
+        run: |
+          # 下载预编译的核心库
+          mkdir -p windows/libcore
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/download/draft/libcore-windows-amd64.tar.gz | tar xz -C windows/libcore
+      
       - name: Build Windows
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define sentry_dsn=""
       
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -36,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive  # 初始化并更新子模块
+          submodules: recursive
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -53,8 +60,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       
+      - name: Prepare Android build
+        run: |
+          # 下载预编译的核心库
+          mkdir -p android/app/libs
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/download/draft/libcore-android.tar.gz | tar xz -C android/app/libs
+      
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define sentry_dsn=""
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
