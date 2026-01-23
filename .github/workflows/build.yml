@@ -24,19 +24,32 @@ jobs:
           channel: 'stable'
           cache: true
       
-      - name: Setup dependencies
-        run: make windows-install-dependencies
+      - name: Install dependencies
+        run: flutter pub get
       
-      - name: Prepare Windows build
-        run: make windows-prepare
+      - name: Prepare Windows (download core libs)
+        shell: bash
+        run: |
+          mkdir -p windows/libcore
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/latest/download/libcore-windows-amd64.tar.gz -o libcore.tar.gz || \
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/download/draft/libcore-windows-amd64.tar.gz -o libcore.tar.gz
+          tar -xzf libcore.tar.gz -C windows/libcore || echo "Failed to extract, continuing anyway"
+          ls -la windows/libcore || dir windows\libcore
       
       - name: Build Windows
-        env:
-          SENTRY_DSN: ""
-        run: make windows-release
+        run: flutter build windows --release --dart-define=sentry_dsn=""
       
-      - name: Package Windows
-        run: .\scripts\package_windows.ps1
+      - name: Package Windows Portable
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path "out"
+          if (Test-Path "build\windows\x64\runner\Release") {
+            Compress-Archive -Force -Path "build\windows\x64\runner\Release\*" -DestinationPath "out\LogVPN-Windows-Portable-x64.zip"
+            echo "✅ Windows portable created"
+          } else {
+            echo "❌ Release directory not found"
+            exit 1
+          }
       
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -71,31 +84,42 @@ jobs:
           add-to-path: true
           link-to-sdk: true
       
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '7.5'
+      - name: Install dependencies
+        run: flutter pub get
       
-      - name: Setup dependencies
-        run: make android-apk-install-dependencies
-      
-      - name: Prepare Android build
-        run: make android-apk-prepare
+      - name: Prepare Android (download core libs)
+        run: |
+          mkdir -p android/app/src/main/jniLibs/arm64-v8a
+          mkdir -p android/app/src/main/jniLibs/armeabi-v7a
+          mkdir -p android/app/src/main/jniLibs/x86_64
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/latest/download/libcore-android.tar.gz -o libcore.tar.gz || \
+          curl -L https://github.com/hiddify/hiddify-next-core/releases/download/draft/libcore-android.tar.gz -o libcore.tar.gz
+          tar -xzf libcore.tar.gz || echo "Failed to extract, continuing anyway"
+          ls -la android/app/src/main/jniLibs/ || echo "jniLibs not found"
       
       - name: Build APK
-        env:
-          SENTRY_DSN: ""
-        run: make android-apk-release
+        run: flutter build apk --release --split-per-abi --dart-define=sentry_dsn=""
       
       - name: Copy APK to out
         run: |
-          mkdir out
-          cp ./build/app/outputs/flutter-apk/*arm64-v8a*.apk out/LogVPN-arm64.apk || echo "no arm64 apk"
-          cp ./build/app/outputs/flutter-apk/*armeabi-v7a*.apk out/LogVPN-arm7.apk || echo "no arm7 apk"
-          cp ./build/app/outputs/flutter-apk/app-release.apk out/LogVPN-universal.apk || echo "no universal apk"
+          mkdir -p out
+          find build/app/outputs/flutter-apk -name "*.apk" -exec cp {} out/ \;
+          ls -la out/
+          # Rename files
+          cd out
+          for file in *.apk; do
+            if [[ $file == *"arm64-v8a"* ]]; then
+              mv "$file" "LogVPN-Android-arm64.apk"
+            elif [[ $file == *"armeabi-v7a"* ]]; then
+              mv "$file" "LogVPN-Android-arm7.apk"
+            elif [[ $file == *"x86_64"* ]]; then
+              mv "$file" "LogVPN-Android-x64.apk"
+            fi
+          done
+          ls -la
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: LogVPN-Android
-          path: out/
+          path: out/*.apk
