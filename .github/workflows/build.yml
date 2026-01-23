@@ -10,6 +10,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive  # 初始化并更新子模块
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -33,6 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive  # 初始化并更新子模块
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
