@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 769f6a6114caac231dbcd4228d2a2021caa36528 ubuntu <ubuntu@e99f9dda0159.(none)> 1769080947 -0500	clone: from https://github.com/hiddify/hiddify-app.git
+769f6a6114caac231dbcd4228d2a2021caa36528 8328a5bd41550c6649149499cbc5b5e03249a7bc LogVPN Bot <logvpn@manus.im> 1769082716 -0500	commit: feat: LogVPN v1.0.0 - VeePN UI 复刻版
+8328a5bd41550c6649149499cbc5b5e03249a7bc 36dec1c6d8b3a7c0eaee635934813c0070bcad3d LogVPN Bot <logvpn@manus.im> 1769140960 +0800	commit: first build
+36dec1c6d8b3a7c0eaee635934813c0070bcad3d 8328a5bd41550c6649149499cbc5b5e03249a7bc LogVPN Bot <logvpn@manus.im> 1769141747 +0800	reset: moving to 8328a5bd41550c6649149499cbc5b5e03249a7bc
+8328a5bd41550c6649149499cbc5b5e03249a7bc 769f6a6114caac231dbcd4228d2a2021caa36528 LogVPN Bot <logvpn@manus.im> 1769141753 +0800	reset: moving to 769f6a6114caac231dbcd4228d2a2021caa36528
+769f6a6114caac231dbcd4228d2a2021caa36528 a1aedeeba84ee978546884b6aa88aae07d2a12cc LogVPN Bot <logvpn@manus.im> 1769141778 +0800	commit: feat: LogVPN v1.0.0 - VeePN UI 复刻版
